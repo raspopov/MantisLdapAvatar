@@ -35,7 +35,7 @@ if ($avatar_max_height < 0) {
 
 if ($error_count > 0) {
 	form_security_purge ( 'MantisLdapAvatarConfig_update' );
-	print_successful_redirect ( plugin_page ( 'MantisLdapAvatarConfig.php', true ) . '&updated=0&msg=' . urlencode ( $error_msg ) );
+	print_header_redirect( plugin_page( 'MantisLdapAvatarConfig.php', true ) . '&updated=0&msg=' . urlencode( $error_msg ) );
 } else {
 	
 	// Save
@@ -47,5 +47,5 @@ if ($error_count > 0) {
 	
 	form_security_purge ( 'MantisLdapAvatarConfig_update' );
 	
-	print_successful_redirect ( plugin_page ( 'MantisLdapAvatarConfig.php', true ) . '&updated=1' );
+	print_header_redirect( plugin_page( 'MantisLdapAvatarConfig.php', true ) . '&updated=1' );
 }
