@@ -32,7 +32,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 		$this->version = '2.0.0';
 		$this->requires = array (
-			'MantisCore' => '2.28.0'
+			'MantisCore' => '2.28'
 		);
 
 		$this->author = 'Nikolay Raspopov';
@@ -64,11 +64,11 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Returns LDAP attribute names for caching
-	 * @param string $p_event The name for the event.
+	 * @param string $p_event The name for the event
 	 * @param array  $p_user  The username
 	 * @return array
 	 */
-	function cache_attrs($p_event, $p_user) {
+	function cache_attrs( $p_event, $p_user ) {
 		return array(
 			plugin_config_get( 'ldap_last_modified_field' ),
 			plugin_config_get( 'ldap_avatar_field' )
@@ -98,6 +98,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 			trigger_error( ERROR_PLUGIN_INSTALL_FAILED, ERROR );
 			return false;
 		}
+
 		return true;
 	}
 
@@ -108,36 +109,33 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 	 * @param integer $p_size    The required number of pixel in the image to retrieve the link for
 	 * @return object An instance of class Avatar
 	 */
-	function user_get_avatar($p_event, $p_user_id, $p_size = 80) {
+	function user_get_avatar( $p_event, $p_user_id, $p_size = 80 ) {
 		$t_avatar = new Avatar ();
-		$t_username = user_get_name( $p_user_id );
 		$t_ldap_last_modified_field = plugin_config_get( 'ldap_last_modified_field' );
-		$last_modified = ldap_get_field_from_username( $t_username, $t_ldap_last_modified_field );
+		$last_modified = ldap_get_field_from_username( user_get_name( $p_user_id ), $t_ldap_last_modified_field );
 		if( $last_modified ) {
 			// Check if the avatar is already in cache
-			$avatar_url = $this->get_user_avatar_from_cache( $t_username, $last_modified, $p_size );
-			if( $avatar_url === null ) {
-				$t_avatar->image = $this->download_user_avatar( $t_username, $last_modified, $p_size );
-			} else {
-				$t_avatar->image = $avatar_url;
-			}
+			$avatar_url = $this->get_user_avatar_from_cache( $p_user_id, $last_modified, $p_size );
+
+			$t_avatar->image = ( $avatar_url ? $avatar_url : $this->download_user_avatar( $p_user_id, $last_modified, $p_size ) );
 		}
+
 		return $t_avatar;
 	}
 
 	/**
 	 * Retrieves the user avatar from LDAP, resize it if needed then store it on disk cache
-	 * @param string  $p_user_name     The username
+	 * @param integer $p_user_id       A valid user identifier
 	 * @param string  $p_last_modified A string that tells when the user LDAP entry was last modified
 	 * @param integer $p_size          The required number of pixel in the image
 	 * @return string|null Avatar URL or null
 	 */
-	function download_user_avatar($p_user_name, $p_last_modified, $p_size) {
+	function download_user_avatar( $p_user_id, $p_last_modified, $p_size ) {
 		$t_image = null;
-		$t_avatar_image = ldap_get_field_from_username( $p_user_name, plugin_config_get( 'ldap_avatar_field' ) );
-		if( $t_avatar_image != null && $t_avatar_image != '' ) {
+		$t_avatar_image = ldap_get_field_from_username( user_get_name( $p_user_id ), plugin_config_get( 'ldap_avatar_field' ) );
+		if( $t_avatar_image ) {
 
-			$t_avatar_path = $this->get_avatar_path( $p_user_name, $p_last_modified, $p_size );
+			$t_avatar_path = $this->get_avatar_path( $p_user_id, $p_last_modified, $p_size );
 
 			list( $t_srt_width, $t_srt_height ) = getimagesizefromstring( $t_avatar_image );
 			$t_ratio = $t_srt_width / $t_srt_height;
@@ -156,7 +154,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 			imagedestroy( $t_dst_img );
 			imagedestroy( $t_src_img );
 
-			$this->delete_old_avatar( $p_user_name, $p_last_modified, $p_size );
+			$this->delete_old_avatar( $p_user_id, $p_last_modified, $p_size );
 			$t_image = plugin_file( basename( $t_avatar_path ) );
 		}
 
@@ -165,14 +163,14 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Delete old avatar files
-	 * @param string  $p_user_name     The username
+	 * @param integer $p_user_id       A valid user identifier
 	 * @param string  $p_last_modified A string that tells when the user LDAP entry was last modified
 	 * @param integer $p_size          The required number of pixel in the image
 	 * @return void
 	 */
-	function delete_old_avatar($p_user_name, $p_last_modified, $p_size) {
-		$t_avatar_path = $this->get_avatar_path( $p_user_name, $p_last_modified, $p_size );
-		$t_search = glob( $this->get_avatar_path_base( $p_user_name, $p_size ) . '*' );
+	function delete_old_avatar( $p_user_id, $p_last_modified, $p_size ) {
+		$t_avatar_path = $this->get_avatar_path( $p_user_id, $p_last_modified, $p_size );
+		$t_search = glob( $this->get_avatar_path_base( $p_user_id, $p_size ) . '*' );
 		foreach( $t_search as $t_filename ) {
 			if( $t_filename != $t_avatar_path && !@unlink( $t_filename ) ) {
 				error_parameters( 'Unable to delete file: ' . $t_filename, plugin_get_current() );
@@ -183,38 +181,35 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Check if the user avatar can be retrieved from cache
-	 * @param string  $p_user_name     The username
+	 * @param integer $p_user_id       A valid user identifier
 	 * @param string  $p_last_modified A string that tells when the user LDAP entry was last modified
 	 * @param integer $p_size          The required number of pixel in the image
-	 * @return string|null The user avatar file URL or null
+	 * @return string|false The user avatar file URL or false
 	 */
-	function get_user_avatar_from_cache($p_user_name, $p_last_modified, $p_size) {
-		$t_avatar_path = $this->get_avatar_path( $p_user_name, $p_last_modified, $p_size );
-		if( file_exists( $t_avatar_path ) ) {
-			return plugin_file( basename( $t_avatar_path ) );
-		}
-		return null;
+	function get_user_avatar_from_cache( $p_user_id, $p_last_modified, $p_size ) {
+		$t_avatar_path = $this->get_avatar_path( $p_user_id, $p_last_modified, $p_size );
+		return ( file_exists( $t_avatar_path ) ? plugin_file( basename( $t_avatar_path ) ) : false );
 	}
 
 	/**
 	 * Constructs the user avatar file absolute path
-	 * @param string  $p_user_name     The username
+	 * @param integer $p_user_id       A valid user identifier
 	 * @param string  $p_last_modified A string that tells when the user LDAP entry was last modified
 	 * @param integer $p_size          The required number of pixel in the image
 	 * @return string The user avatar file absolute path
 	 */
-	function get_avatar_path($p_user_name, $p_last_modified, $p_size) {
-		return $this->get_avatar_path_base( $p_user_name, $p_size ) . preg_replace( '/[^a-zA-Z0-9\.]/', '', $p_last_modified ) . '.jpg';
+	function get_avatar_path( $p_user_id, $p_last_modified, $p_size ) {
+		return $this->get_avatar_path_base( $p_user_id, $p_size ) . preg_replace( '/[^a-zA-Z0-9]/', '', $p_last_modified ) . '.jpg';
 	}
 
 	/**
 	 * Constructs the user avatar file absolute path base
-	 * @param string  $p_user_name The username
-	 * @param integer $p_size      The required number of pixel in the image
+	 * @param integer $p_user_id       A valid user identifier
+	 * @param integer $p_size          The required number of pixel in the image
 	 * @return string The user avatar file absolute path base
 	 */
-	 function get_avatar_path_base($p_user_name, $p_size) {
-		return plugin_file_path() . preg_replace( '/[\/:*?"<>|]/', '', $p_user_name ) . '-' . $p_size . '-';
+	 function get_avatar_path_base( $p_user_id, $p_size ) {
+		return plugin_file_path() . $p_user_id . '-' . $p_size . '-';
 	}
 
 	/**
@@ -227,6 +222,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 		foreach( $t_search as $t_filename ) {
 			$t_size += @filesize( $t_filename );
 		}
+
 		return $t_size;
 	}
 
