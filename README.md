@@ -6,7 +6,7 @@
 
 ## Presentation
 
-This plugin connects to the [MantisBT globally configured LDAP](https://www.mantisbt.org/docs/master/en-US/Admin_Guide/html-single/#admin.config.auth.ldap) and cache the avatars retrieved from a configured LDAP attribute to a local storage path.
+This plugin connects to the [MantisBT globally configured LDAP](https://mantisbt.org/docs/master/en-US/Admin_Guide/html-desktop/#admin.config.auth.ldap) and cache the avatars retrieved from a configured LDAP attribute to a local storage path.
 
 When the user's LDAP last modified attribute is modified, the avatar is retrieved again from LDAP.
 
