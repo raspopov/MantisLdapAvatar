@@ -26,12 +26,12 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 	 * @return void
 	 */
 	function register() {
-		$this->name = plugin_lang_get ( 'title' );
-		$this->description = plugin_lang_get ( 'description' );
+		$this->name = plugin_lang_get( 'title' );
+		$this->description = plugin_lang_get( 'description' );
 		$this->page = 'MantisLdapAvatarConfig';
 
 		$this->version = '2.0.0';
-		$this->requires = array (
+		$this->requires = array(
 			'MantisCore' => '2.28'
 		);
 
@@ -45,7 +45,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 	 * @return array
 	 */
 	function config() {
-		return array (
+		return array(
 			'ldap_avatar_field' => 'jpegphoto',
 			'ldap_last_modified_field' => 'modifytimestamp'
 		);
@@ -56,7 +56,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 	 * @return array
 	 */
 	function hooks() {
-		return array (
+		return array(
 			'EVENT_USER_AVATAR' => 'user_get_avatar',
 			'EVENT_LDAP_CACHE_ATTRS' => 'cache_attrs'
 		);
@@ -93,8 +93,11 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 		}
 
 		$t_avatar_storage_path = plugin_file_path();
-		if( !file_exists( $t_avatar_storage_path ) || !is_writable( $t_avatar_storage_path ) || !is_dir( $t_avatar_storage_path ) ) {
-			error_parameters( plugin_get_current() . '. Invalid avatar storage path: ' . $t_avatar_storage_path . ' must be a writable directory' );
+		if( !file_exists( $t_avatar_storage_path )
+			|| !is_writable( $t_avatar_storage_path )
+			|| !is_dir( $t_avatar_storage_path ) ) {
+			error_parameters( plugin_get_current() . '. Invalid avatar storage path: '
+				. $t_avatar_storage_path . ' must be a writable directory' );
 			trigger_error( ERROR_PLUGIN_INSTALL_FAILED, ERROR );
 			return false;
 		}
@@ -110,16 +113,15 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 	 * @return object An instance of class Avatar
 	 */
 	function user_get_avatar( $p_event, $p_user_id, $p_size = 80 ) {
-		$t_avatar = new Avatar ();
+		$t_avatar = new Avatar();
 		$t_ldap_last_modified_field = plugin_config_get( 'ldap_last_modified_field' );
 		$last_modified = ldap_get_field_from_username( user_get_name( $p_user_id ), $t_ldap_last_modified_field );
 		if( $last_modified ) {
 			// Check if the avatar is already in cache
 			$avatar_url = $this->get_user_avatar_from_cache( $p_user_id, $last_modified, $p_size );
 
-			$t_avatar->image = ( $avatar_url ? $avatar_url : $this->download_user_avatar( $p_user_id, $last_modified, $p_size ) );
+			$t_avatar->image = ( $avatar_url ?: $this->download_user_avatar( $p_user_id, $last_modified, $p_size ) );
 		}
-
 		return $t_avatar;
 	}
 
@@ -157,7 +159,6 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 			$this->delete_old_avatar( $p_user_id, $p_last_modified, $p_size );
 			$t_image = plugin_file( basename( $t_avatar_path ) );
 		}
-
 		return $t_image;
 	}
 
@@ -199,7 +200,8 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 	 * @return string The user avatar file absolute path
 	 */
 	function get_avatar_path( $p_user_id, $p_last_modified, $p_size ) {
-		return $this->get_avatar_path_base( $p_user_id, $p_size ) . preg_replace( '/[^a-zA-Z0-9]/', '', $p_last_modified ) . '.jpg';
+		return $this->get_avatar_path_base( $p_user_id, $p_size )
+			. preg_replace( '/[^a-zA-Z0-9]/', '', $p_last_modified ) . '.jpg';
 	}
 
 	/**
@@ -222,7 +224,6 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 		foreach( $t_search as $t_filename ) {
 			$t_size += @filesize( $t_filename );
 		}
-
 		return $t_size;
 	}
 
