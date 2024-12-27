@@ -11,3 +11,7 @@ $s_plugin_MantisLdapAvatar_ldap_last_modified_field_title = 'LDAP last modified 
 $s_plugin_MantisLdapAvatar_ldap_last_modified_field_details = 'The name of the LDAP attribute where to check for a modification on the LDAP user, for example "modifyTimeStamp" (default).';
 $s_plugin_MantisLdapAvatar_cache_size_title = 'Cache size';
 $s_plugin_MantisLdapAvatar_cache_size_details = 'The total size of all cached avatars.';
+$s_plugin_MantisLdapAvatar_avatar_disabled = '<strong>Warning:</strong> Avatars are disabled by the "show_avatar" configuration option.';
+$s_plugin_MantisLdapAvatar_last_modified_error = '<strong>Warning:</strong> Failed to retrieve LDAP last modified attribute for current user.';
+$s_plugin_MantisLdapAvatar_ldap_avatar_field_error = '<strong>Warning:</strong> Failed to retrieve LDAP avatar attribute for current user.';
+$s_plugin_MantisLdapAvatar_storage_path_error = '<strong>Warning:</strong> Invalid avatar storage path, must be a writable directory: ';

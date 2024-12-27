@@ -20,9 +20,56 @@
  */
 
 auth_reauthenticate();
+
 access_ensure_global_level( config_get( 'manage_plugin_threshold' ) );
+
 layout_page_header( plugin_lang_get( 'title' ) );
+
 layout_page_begin( 'manage_overview_page.php' );
+
+if( !config_get( 'show_avatar' ) ) {
+	?>
+	<div class="alert alert-warning">
+		<ul>
+			<li><?php echo plugin_lang_get( 'avatar_disabled' ); ?></li>
+		</ul>
+	</div>
+	<?php
+}
+
+$t_user_name = user_get_name( auth_get_current_user_id() );
+if( !ldap_get_field_from_username( $t_user_name, plugin_config_get( 'ldap_last_modified_field' ) ) ) {
+	?>
+	<div class="alert alert-warning">
+		<ul>
+			<li><?php echo plugin_lang_get( 'last_modified_error' ); ?></li>
+		</ul>
+	</div>
+	<?php
+}
+if( !ldap_get_field_from_username( $t_user_name, plugin_config_get( 'ldap_avatar_field' ) ) ) {
+	?>
+	<div class="alert alert-warning">
+		<ul>
+			<li><?php echo plugin_lang_get( 'ldap_avatar_field_error' ); ?></li>
+		</ul>
+	</div>
+	<?php
+}
+
+$t_storage_path = plugin_file_path();
+if( !file_exists( $t_storage_path )
+	|| !is_writable( $t_storage_path )
+	|| !is_dir( $t_storage_path ) ) {
+	?>
+	<div class="alert alert-warning">
+		<ul>
+			<li><?php echo plugin_lang_get( 'storage_path_error' ), $t_storage_path; ?></li>
+		</ul>
+	</div>
+	<?php
+}
+
 print_manage_menu( 'manage_plugin_page.php' );
 ?>
 <div class="col-md-12 col-xs-12">
