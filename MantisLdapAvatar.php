@@ -92,16 +92,6 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 			return false;
 		}
 
-		$t_avatar_storage_path = plugin_file_path();
-		if( !file_exists( $t_avatar_storage_path )
-			|| !is_writable( $t_avatar_storage_path )
-			|| !is_dir( $t_avatar_storage_path ) ) {
-			error_parameters( plugin_get_current() . '. Invalid avatar storage path: '
-				. $t_avatar_storage_path . ' must be a writable directory' );
-			trigger_error( ERROR_PLUGIN_INSTALL_FAILED, ERROR );
-			return false;
-		}
-
 		return true;
 	}
 
@@ -115,12 +105,14 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 	function user_get_avatar( $p_event, $p_user_id, $p_size = 80 ) {
 		$t_avatar = new Avatar();
 		$t_ldap_last_modified_field = plugin_config_get( 'ldap_last_modified_field' );
-		$last_modified = ldap_get_field_from_username( user_get_name( $p_user_id ), $t_ldap_last_modified_field );
+		$last_modified = ldap_get_field_from_username( user_get_name( $p_user_id ),
+			$t_ldap_last_modified_field );
 		if( $last_modified ) {
 			// Check if the avatar is already in cache
 			$avatar_url = $this->get_user_avatar_from_cache( $p_user_id, $last_modified, $p_size );
 
-			$t_avatar->image = ( $avatar_url ?: $this->download_user_avatar( $p_user_id, $last_modified, $p_size ) );
+			$t_avatar->image = ( $avatar_url ?:
+				$this->download_user_avatar( $p_user_id, $last_modified, $p_size ) );
 		}
 		return $t_avatar;
 	}
@@ -134,30 +126,36 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 	 */
 	function download_user_avatar( $p_user_id, $p_last_modified, $p_size ) {
 		$t_image = null;
-		$t_avatar_image = ldap_get_field_from_username( user_get_name( $p_user_id ), plugin_config_get( 'ldap_avatar_field' ) );
+		$t_avatar_image = ldap_get_field_from_username( user_get_name( $p_user_id ),
+			plugin_config_get( 'ldap_avatar_field' ) );
 		if( $t_avatar_image ) {
 
 			$t_avatar_path = $this->get_avatar_path( $p_user_id, $p_last_modified, $p_size );
 
-			list( $t_srt_width, $t_srt_height ) = getimagesizefromstring( $t_avatar_image );
-			$t_ratio = $t_srt_width / $t_srt_height;
-			if( $t_ratio > 1 ) {
-				$t_dst_width = $p_size;
-				$t_dst_height = $t_dst_width / $t_ratio;
-			} else {
-				$t_dst_height = $p_size;
-				$t_dst_width = $t_dst_height * $t_ratio;
+			list( $t_srt_width, $t_srt_height ) = @getimagesizefromstring( $t_avatar_image );
+			if( $t_srt_width && $t_srt_height ) {
+				$t_ratio = $t_srt_width / $t_srt_height;
+				if( $t_ratio > 1 ) {
+					$t_dst_width = (int)( $p_size );
+					$t_dst_height = (int)( $t_dst_width / $t_ratio );
+				} else {
+					$t_dst_height = (int)( $p_size );
+					$t_dst_width = (int)( $t_dst_height * $t_ratio );
+				}
+				$t_src_img = @imagecreatefromstring( $t_avatar_image );
+				if( $t_src_img ) {
+					$t_dst_img = imagecreatetruecolor( $t_dst_width, $t_dst_height );
+					imagecopyresampled( $t_dst_img, $t_src_img, 0, 0, 0, 0,
+						$t_dst_width, $t_dst_height, $t_srt_width, $t_srt_height );
+					$t_result = @imagejpeg( $t_dst_img, $t_avatar_path, 75 );
+					imagedestroy( $t_dst_img );
+					imagedestroy( $t_src_img );
+					if( $t_result ) {
+						$this->delete_old_avatar( $p_user_id, $p_last_modified, $p_size );
+						$t_image = plugin_file( basename( $t_avatar_path ) );
+					}
+				}
 			}
-
-			$t_src_img = imagecreatefromstring( $t_avatar_image );
-			$t_dst_img = imagecreatetruecolor( $t_dst_width, $t_dst_height );
-			imagecopyresampled( $t_dst_img, $t_src_img, 0, 0, 0, 0, $t_dst_width, $t_dst_height, $t_srt_width, $t_srt_height );
-			imagejpeg( $t_dst_img, $t_avatar_path, 75 );
-			imagedestroy( $t_dst_img );
-			imagedestroy( $t_src_img );
-
-			$this->delete_old_avatar( $p_user_id, $p_last_modified, $p_size );
-			$t_image = plugin_file( basename( $t_avatar_path ) );
 		}
 		return $t_image;
 	}
