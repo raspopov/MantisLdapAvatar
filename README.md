@@ -1,6 +1,6 @@
 # Avatars via LDAP
 
-**MantisLdapAvatar** - A MantisBT plugin that shows user avatars based on LDAP.
+**MantisLdapAvatar** - A MantisBT plugin shows LDAP user avatars.
 
 ![Avatars via LDAP Screenshot](https://raw.githubusercontent.com/raspopov/MantisLdapAvatar/master/MantisLdapAvatar.png)
 

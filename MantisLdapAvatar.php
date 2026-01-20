@@ -1,6 +1,6 @@
 <?php
 /**
- * MantisLdapAvatar - A MantisBT plugin that shows user avatars based on LDAP
+ * MantisLdapAvatar - A MantisBT plugin shows LDAP user avatars
  *
  * MantisLdapAvatar is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,13 +16,14 @@
  * along with MantisLdapAvatar.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2017 Romain Cabassot <romain.cabassot@gmail.com>
- * Copyright (C) 2024 Nikolay Raspopov <raspopov@cherubicsoft.com>
+ * Copyright (C) 2024-2025 Nikolay Raspopov <raspopov@cherubicsoft.com>
  */
 
 class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
-	 * A method that populates the plugin information and minimum requirements.
+	 * A method that populates the plugin information and minimum requirements
+	 *
 	 * @return void
 	 */
 	function register() {
@@ -30,7 +31,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 		$this->description = plugin_lang_get( 'description' );
 		$this->page = 'MantisLdapAvatarConfig';
 
-		$this->version = '2.0.0';
+		$this->version = '2.1.0';
 		$this->requires = array(
 			'MantisCore' => '2.28'
 		);
@@ -42,6 +43,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Default plugin configuration
+	 *
 	 * @return array
 	 */
 	function config() {
@@ -53,6 +55,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Register event hooks for plugin
+	 *
 	 * @return array
 	 */
 	function hooks() {
@@ -64,6 +67,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Returns LDAP attribute names for caching
+	 *
 	 * @param string $p_event The name for the event
 	 * @param array  $p_user  The username
 	 * @return array
@@ -77,6 +81,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Plugin Installation
+	 *
 	 * @return boolean
 	 */
 	function install() {
@@ -97,6 +102,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Return the user avatar
+	 *
 	 * @param string  $p_event   The name for the event
 	 * @param integer $p_user_id A valid user identifier
 	 * @param integer $p_size    The required number of pixel in the image to retrieve the link for
@@ -119,6 +125,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Retrieves the user avatar from LDAP, resize it if needed then store it on disk cache
+	 *
 	 * @param integer $p_user_id       A valid user identifier
 	 * @param string  $p_last_modified A string that tells when the user LDAP entry was last modified
 	 * @param integer $p_size          The required number of pixel in the image
@@ -162,6 +169,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Delete old avatar files
+	 *
 	 * @param integer $p_user_id       A valid user identifier
 	 * @param string  $p_last_modified A string that tells when the user LDAP entry was last modified
 	 * @param integer $p_size          The required number of pixel in the image
@@ -180,6 +188,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Check if the user avatar can be retrieved from cache
+	 *
 	 * @param integer $p_user_id       A valid user identifier
 	 * @param string  $p_last_modified A string that tells when the user LDAP entry was last modified
 	 * @param integer $p_size          The required number of pixel in the image
@@ -192,6 +201,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Constructs the user avatar file absolute path
+	 *
 	 * @param integer $p_user_id       A valid user identifier
 	 * @param string  $p_last_modified A string that tells when the user LDAP entry was last modified
 	 * @param integer $p_size          The required number of pixel in the image
@@ -204,6 +214,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Constructs the user avatar file absolute path base
+	 *
 	 * @param integer $p_user_id       A valid user identifier
 	 * @param integer $p_size          The required number of pixel in the image
 	 * @return string The user avatar file absolute path base
@@ -214,6 +225,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Get all avatar files size
+	 *
 	 * @return integer Total size of all files (bytes).
 	 */
 	 public static function size() {
@@ -227,6 +239,7 @@ class MantisLdapAvatarPlugin extends MantisPlugin {
 
 	/**
 	 * Purge all avatar files
+	 *
 	 * @return void
 	 */
 	public static function purge() {

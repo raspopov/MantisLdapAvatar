@@ -1,6 +1,6 @@
 <?php
 /**
- * MantisLdapAvatar - A MantisBT plugin that shows user avatars based on LDAP
+ * MantisLdapAvatar - A MantisBT plugin shows LDAP user avatars
  *
  * MantisLdapAvatar is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with MantisLdapAvatar.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2017 Romain Cabassot <romain.cabassot@gmail.com>
- * Copyright (C) 2024 Nikolay Raspopov <raspopov@cherubicsoft.com>
+ * Copyright (C) 2024-2025 Nikolay Raspopov <raspopov@cherubicsoft.com>
  */
 
 form_security_validate( 'plugin_MantisLdapAvatarConfig_update' );
@@ -43,4 +43,5 @@ plugin_config_delete( 'avatar_max_width' );
 plugin_config_delete( 'avatar_max_height' );
 
 form_security_purge( 'plugin_MantisLdapAvatarConfig_update' );
+
 print_header_redirect( plugin_page( 'MantisLdapAvatarConfig', true ) );

@@ -1,0 +1,31 @@
+name: Pack
+
+on: push
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pack
+        run: |
+          mkdir -p pack/MantisLdapAvatar/
+          cp MantisLdapAvatar.php pack/MantisLdapAvatar/
+          cp -r files pack/MantisLdapAvatar/
+          cp -r lang pack/MantisLdapAvatar/
+          cp -r pages pack/MantisLdapAvatar/
+          cd pack/
+          zip -r ../MantisLdapAvatar.zip .
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          draft: true
+          files: MantisLdapAvatar.zip
+          tag_name: ${{ github.ref_name }}

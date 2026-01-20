@@ -1,0 +1,17 @@
+<?php
+
+$s_plugin_MantisLdapAvatar_title = 'Аватарки от LDAP';
+$s_plugin_MantisLdapAvatar_description = 'Плагин отображает аватарки пользователей LDAP (требуются расширения PHP GD и LDAP).';
+$s_plugin_MantisLdapAvatar_purge = 'Очистить кеш';
+$s_plugin_MantisLdapAvatar_ensure_purge = 'Вы действительно хотите очистить кэш?';
+$s_plugin_MantisLdapAvatar_ldap_avatar_field_title = 'Атрибут аватарки LDAP';
+$s_plugin_MantisLdapAvatar_ldap_avatar_field_details = 'Имя атрибута LDAP, в котором хранится аватарка (в виде байтов), например "jpegPhoto" (по умолчанию), "photo" или "thumbnailPhoto" для Active Directory.';
+$s_plugin_MantisLdapAvatar_ldap_last_modified_field_title = 'Атрибут даты изменения LDAP';
+$s_plugin_MantisLdapAvatar_ldap_last_modified_field_details = 'Имя атрибута LDAP, в котором следует проверять изменения пользователя, например "modifyTimeStamp" (по умолчанию).';
+$s_plugin_MantisLdapAvatar_cache_size_title = 'Размер кеша';
+$s_plugin_MantisLdapAvatar_cache_size_details = 'Общий размер всех кэшированных аватарок.';
+$s_plugin_MantisLdapAvatar_avatar_disabled = 'Аватары отключены с помощью параметра конфигурации "show_avatar".';
+$s_plugin_MantisLdapAvatar_last_modified_error = 'Не удалось получить атрибут LDAP последнего изменения для текущего пользователя.';
+$s_plugin_MantisLdapAvatar_ldap_avatar_field_error = 'Не удалось получить атрибут LDAP аватарки для текущего пользователя.';
+$s_plugin_MantisLdapAvatar_storage_path_error = 'Неверный путь к хранилищу аватаров, должен быть каталогом с правом записи: ';
+$s_plugin_MantisLdapAvatar_ldap_error = 'Сервер LDAP или Active Directory настроен неверно.';
